@@ -1,4 +1,4 @@
-###Owner
+### Owner
 ***José Fernando González Herrera***
 *MsEng at  CIMAT - Software*
 *BsC  at IPN - Mechatronics*
@@ -9,7 +9,7 @@ Institutional email:		jose.gonzalez@cimat.mx
 
 ------------
 
-###This repository include codes for:
+### This repository include codes for:
 -  Kaggle submissions or optimizations
 - Machine Learning presence and MOOC courses.
 - Deep Learning presence and MOOC courses.
