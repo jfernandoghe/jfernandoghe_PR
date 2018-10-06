@@ -1,5 +1,5 @@
 ### Owner
-***José Fernando González Herrera***
+***José Fernando González Herrera***<br/><br/><br/>
 *MsEng at  CIMAT - Software*<br/>
 *BsC  at IPN - Mechatronics*<br/>
 *Mexico*<br/>  
