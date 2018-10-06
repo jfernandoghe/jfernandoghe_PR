@@ -34,7 +34,7 @@ batch_size = 16
 # model
 nb_runs = 1
 nb_aug = 3
-epochs = 5
+epochs = 2
 lr = 1e-4
 clip = 0.001
 archs = ["resnet101"]
@@ -155,10 +155,10 @@ def test(test_loader, model):
             csv_w.writerow(row)
     print("Done.")
 
-def save_checkpoint(state, is_best, filename='checkpoint.pth.tar'):
+def save_checkpoint(state, is_best, filename='/home/jfernandoghe/Documents/x_Datasets/Dataset/Chest_ray/chest_xray/checkpoint.pth.tar'):
     torch.save(state, filename)
     if is_best:
-        shutil.copyfile(filename, 'model_best.pth.tar')
+        shutil.copyfile(filename, '/home/jfernandoghe/Documents/x_Datasets/Dataset/Chest_ray/chest_xray/model_best.pth.tar')
 
 class AverageMeter(object):
     """Computes and stores the average and current value"""
