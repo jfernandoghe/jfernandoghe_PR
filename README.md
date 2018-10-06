@@ -3,7 +3,7 @@
 *MsEng at  CIMAT - Software*<br/>
 *BsC  at IPN - Mechatronics*<br/>
 *Mexico*<br/>  
-<br/><br/>
+<br/>
 Personal email: 			jfernandoghe@gmail.com<br/>
 Institutional email:		jose.gonzalez@cimat.mx<br/>
 
