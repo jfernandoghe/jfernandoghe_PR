@@ -21,9 +21,9 @@ import torchvision.transforms as transforms
 
 from PIL import Image
 
+# Paths
 ROOT_DIR = os.getcwd()
 DATA_HOME_DIR = '/home/jfernandoghe/Documents/x_Datasets/Dataset/Chest_ray/chest_xray'
-# paths
 data_path = DATA_HOME_DIR + '/'
 split_train_path = data_path + 'train/'
 valid_path = data_path + 'val/'
@@ -34,14 +34,14 @@ batch_size = 16
 # model
 nb_runs = 1
 nb_aug = 3
-epochs = 2
+epochs = 0
 lr = 1e-4
 clip = 0.001
 archs = ["resnet101"]
 MODEL = 'resnet101'
 model_names = sorted(name for name in models.__dict__ if name.islower() and not name.startswith("__"))
 best_prec1 = 0
-
+print (model_names)
 
 def train(train_loader, model, criterion, optimizer, epoch):
     batch_time = AverageMeter()
@@ -233,125 +233,125 @@ def shear(img):
     return img
 
 
-def main(mode="train", resume=False):
-    global best_prec1
-
-    for arch in archs:
-
-        # create model
-        print("=> Starting {0} on '{1}' model".format(mode, arch))
-        model = models.__dict__[arch](pretrained=True)
-        # Don't update non-classifier learned features in the pretrained networks
-        for param in model.parameters():
-            param.requires_grad = False
-        # Replace the last fully-connected layer
-        # Parameters of newly constructed modules have requires_grad=True by default
-        # Final dense layer needs to replaced with the previous out chans, and number of classes
-        # in this case -- resnet 101 - it's 2048 with two classes
-
-        model.fc = nn.Linear(2048, 2)
-
-        if arch.startswith('alexnet') or arch.startswith('vgg'):
-            model.features = torch.nn.DataParallel(model.features)
-            model.cuda()
-        else:
-            model = torch.nn.DataParallel(model).cuda()
-
-        # optionally resume from a checkpoint
-        if resume:
-            if os.path.isfile(resume):
-                print("=> Loading checkpoint '{}'".format(resume))
-                checkpoint = torch.load(resume)
-                start_epoch = checkpoint['epoch']
-                best_prec1 = checkpoint['best_prec1']
-                model.load_state_dict(checkpoint['state_dict'])
-                print("=> Loaded checkpoint (epoch {})".format(checkpoint['epoch']))
-            else:
-                print("=> No checkpoint found at '{}'".format(args.resume))
-
-        cudnn.benchmark = True
-
-        # Data loading code
-        traindir = split_train_path
-        valdir = valid_path
-        testdir = test_path
-
-        normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-
-        train_loader = data.DataLoader(
-            datasets.ImageFolder(traindir,
-                                 transforms.Compose([
-                                     #                                      transforms.Lambda(shear),
-                                     transforms.RandomResizedCrop(224),
-                                     transforms.RandomHorizontalFlip(),
-                                     transforms.ToTensor(),
-                                     normalize,
-                                 ])),
-            batch_size=batch_size,
-            shuffle=True,
-            num_workers=4,
-            pin_memory=True)
-
-        val_loader = data.DataLoader(
-            datasets.ImageFolder(valdir,
-                                 transforms.Compose([
-                                     transforms.Resize(256),
-                                     transforms.CenterCrop(224),
-                                     transforms.ToTensor(),
-                                     normalize,
-                                 ])),
-            batch_size=batch_size,
-            shuffle=True,
-            num_workers=4,
-            pin_memory=True)
-
-        test_loader = data.DataLoader(
-            TestImageFolder(testdir,
-                            transforms.Compose([
-                                #                                 transforms.Lambda(shear),
-                                transforms.Resize(256),
-                                transforms.CenterCrop(224),
-                                transforms.RandomHorizontalFlip(),
-                                transforms.ToTensor(),
-                                normalize,
-                            ])),
-            batch_size=1,
-            shuffle=False,
-            num_workers=1,
-            pin_memory=False)
-
-        if mode == "test":
-            test(test_loader, model)
-            return
-
-        # define loss function (criterion) and pptimizer
-        criterion = nn.CrossEntropyLoss().cuda()
-
-        if mode == "validate":
-            validate(val_loader, model, criterion, 0)
-            return
-
-        optimizer = optim.Adam(model.module.fc.parameters(), lr, weight_decay=1e-5)
-
-        for epoch in range(epochs):
-            adjust_learning_rate(optimizer, epoch)
-
-            # train for one epoch
-            train(train_loader, model, criterion, optimizer, epoch)
-
-            # evaluate on validation set
-            prec1 = validate(val_loader, model, criterion, epoch)
-
-            # remember best Accuracy and save checkpoint
-            is_best = prec1 > best_prec1
-            best_prec1 = max(prec1, best_prec1)
-            save_checkpoint({
-                'epoch': epoch + 1,
-                'arch': arch,
-                'state_dict': model.state_dict(),
-                'best_prec1': best_prec1,
-            }, is_best)
-
-main(mode="train")
-main(mode="validate", resume='/home/jfernandoghe/Documents/x_Datasets/Dataset/Chest_ray/chest_xray/model_best.pth.tar')
-main(mode="test", resume='/home/jfernandoghe/Documents/x_Datasets/Dataset/Chest_ray/chest_xray/model_best.pth.tar')
+# def main(mode="train", resume=False):
+#     global best_prec1
+#
+#     for arch in archs:
+#
+#         # create model
+#         print("=> Starting {0} on '{1}' model".format(mode, arch))
+#         model = models.__dict__[arch](pretrained=True)
+#         # Don't update non-classifier learned features in the pretrained networks
+#         for param in model.parameters():
+#             param.requires_grad = False
+#         # Replace the last fully-connected layer
+#         # Parameters of newly constructed modules have requires_grad=True by default
+#         # Final dense layer needs to replaced with the previous out chans, and number of classes
+#         # in this case -- resnet 101 - it's 2048 with two classes
+#
+#         model.fc = nn.Linear(2048, 2)
+#
+#         if arch.startswith('alexnet') or arch.startswith('vgg'):
+#             model.features = torch.nn.DataParallel(model.features)
+#             model.cuda()
+#         else:
+#             model = torch.nn.DataParallel(model).cuda()
+#
+#         # optionally resume from a checkpoint
+#         if resume:
+#             if os.path.isfile(resume):
+#                 print("=> Loading checkpoint '{}'".format(resume))
+#                 checkpoint = torch.load(resume)
+#                 start_epoch = checkpoint['epoch']
+#                 best_prec1 = checkpoint['best_prec1']
+#                 model.load_state_dict(checkpoint['state_dict'])
+#                 print("=> Loaded checkpoint (epoch {})".format(checkpoint['epoch']))
+#             else:
+#                 print("=> No checkpoint found at '{}'".format(args.resume))
+#
+#         cudnn.benchmark = True
+#
+#         # Data loading code
+#         traindir = split_train_path
+#         valdir = valid_path
+#         testdir = test_path
+#
+#         normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+#
+#         train_loader = data.DataLoader(
+#             datasets.ImageFolder(traindir,
+#                                  transforms.Compose([
+#                                      #                                      transforms.Lambda(shear),
+#                                      transforms.RandomResizedCrop(224),
+#                                      transforms.RandomHorizontalFlip(),
+#                                      transforms.ToTensor(),
+#                                      normalize,
+#                                  ])),
+#             batch_size=batch_size,
+#             shuffle=True,
+#             num_workers=4,
+#             pin_memory=True)
+#
+#         val_loader = data.DataLoader(
+#             datasets.ImageFolder(valdir,
+#                                  transforms.Compose([
+#                                      transforms.Resize(256),
+#                                      transforms.CenterCrop(224),
+#                                      transforms.ToTensor(),
+#                                      normalize,
+#                                  ])),
+#             batch_size=batch_size,
+#             shuffle=True,
+#             num_workers=4,
+#             pin_memory=True)
+#
+#         test_loader = data.DataLoader(
+#             TestImageFolder(testdir,
+#                             transforms.Compose([
+#                                 #                                 transforms.Lambda(shear),
+#                                 transforms.Resize(256),
+#                                 transforms.CenterCrop(224),
+#                                 transforms.RandomHorizontalFlip(),
+#                                 transforms.ToTensor(),
+#                                 normalize,
+#                             ])),
+#             batch_size=1,
+#             shuffle=False,
+#             num_workers=1,
+#             pin_memory=False)
+#
+#         if mode == "test":
+#             test(test_loader, model)
+#             return
+#
+#         # define loss function (criterion) and pptimizer
+#         criterion = nn.CrossEntropyLoss().cuda()
+#
+#         if mode == "validate":
+#             validate(val_loader, model, criterion, 0)
+#             return
+#
+#         optimizer = optim.Adam(model.module.fc.parameters(), lr, weight_decay=1e-5)
+#
+#         for epoch in range(epochs):
+#             adjust_learning_rate(optimizer, epoch)
+#
+#             # train for one epoch
+#             train(train_loader, model, criterion, optimizer, epoch)
+#
+#             # evaluate on validation set
+#             prec1 = validate(val_loader, model, criterion, epoch)
+#
+#             # remember best Accuracy and save checkpoint
+#             is_best = prec1 > best_prec1
+#             best_prec1 = max(prec1, best_prec1)
+#             save_checkpoint({
+#                 'epoch': epoch + 1,
+#                 'arch': arch,
+#                 'state_dict': model.state_dict(),
+#                 'best_prec1': best_prec1,
+#             }, is_best)
+#
+# main(mode="train")
+# main(mode="validate", resume='/home/jfernandoghe/Documents/x_Datasets/Dataset/Chest_ray/chest_xray/model_best.pth.tar')
+# main(mode="test", resume='/home/jfernandoghe/Documents/x_Datasets/Dataset/Chest_ray/chest_xray/model_best.pth.tar')
